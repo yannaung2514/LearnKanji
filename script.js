@@ -6,7 +6,7 @@
 let kanjiData = [];
 
 // Default AI configuration — uses the Vercel serverless function (api/generate.js)
-// which reads GEMINI_API_KEY from Vercel environment variables (never exposed to the browser).
+// which reads provider API keys from environment variables (never exposed to the browser).
 // For local development, create a config.js with your key and useProxy: false (see config.example.js).
 const apiConfig = window.apiConfig || {
     kanjiCount: 10,
@@ -20,6 +20,12 @@ const apiConfig = window.apiConfig || {
             apiKey: '', // Not needed when useProxy is true (key is on the server)
             model: 'gemini-3.5-flash',
             apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
+        },
+        {
+            name: 'groq',
+            apiKey: '', // Not needed when useProxy is true (key is on the server)
+            model: 'llama-3.3-70b-versatile',
+            apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
         },
     ],
 };
@@ -593,7 +599,7 @@ async function fetchKanjiData() {
         return;
     }
 
-    // Step 4: Try each provider in order (Gemini → OpenAI → OpenRouter → DeepSeek)
+    // Step 4: Try each provider in configured order.
     const prompt = `For each of the following kanji characters: ${kanjiChars}, provide a JSON object with a "kanji" property containing an array of objects. Each object must include: "char" (the kanji character), "compounds" (an array of 3-5 common compound word objects, each with "word" (the compound word), "hira" (full hiragana reading of the compound word), and "meaning" (Myanmar/Burmese translation of the compound word written in Burmese script ONLY — never Korean, never Chinese, never English)), "on" (on'yomi reading in katakana), "kun" (kun'yomi reading), "myanmar" (Myanmar/Burmese meaning written in Burmese script ONLY — never Korean, never Chinese, never English), and "ex" (array of 2 example objects). Each object in "ex" must have: "jp" (Japanese example sentence), "hira" (full hiragana reading of the sentence), and "meaning" (Myanmar/Burmese translation written in Burmese script ONLY — never Korean). Output only JSON without explanation.`;
 
     let kanjiResult = null;
