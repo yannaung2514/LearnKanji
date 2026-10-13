@@ -24,6 +24,8 @@ const apiConfig = window.apiConfig || {
     ],
 };
 
+const serviceUnavailableRetryDelayMs = 60 * 1000;
+
 // ===== Supabase Integration =====
 // Fetch kanji data from Supabase via the Vercel serverless function (api/supabase.js)
 async function fetchKanjiFromSupabase(limit = 100) {
@@ -172,13 +174,20 @@ async function callAIForKanji(kanjiList) {
                 }
 
                 const responseText = await response.text();
+                if (response.status === 503 && attempt < apiConfig.maxRetries) {
+                    console.warn(`${provider.name} returned 503 Service Unavailable. Retrying in 60s...`);
+                    await sleep(serviceUnavailableRetryDelayMs);
+                    continue;
+                }
                 if (response.status === 429 && attempt < apiConfig.maxRetries) {
                     const waitMs = Math.pow(2, attempt) * 1000;
                     await sleep(waitMs);
                     continue;
                 }
                 if (!response.ok) {
-                    throw new Error(`${provider.name} API failed (${response.status}): ${responseText.substring(0, 200)}`);
+                    const error = new Error(`${provider.name} API failed (${response.status}): ${responseText.substring(0, 200)}`);
+                    error.status = response.status;
+                    throw error;
                 }
                 const data = JSON.parse(responseText);
                 if (provider.name === 'gemini') {
@@ -662,6 +671,12 @@ async function fetchKanjiData() {
 
                 const responseText = await response.text();
 
+                if (response.status === 503 && attempt < apiConfig.maxRetries) {
+                    loadingMessage.textContent = `${provider.name} returned 503 Service Unavailable. Retrying in 60s…`;
+                    await sleep(serviceUnavailableRetryDelayMs);
+                    continue;
+                }
+
                 // Retry on rate limit (429)
                 if (response.status === 429 && attempt < apiConfig.maxRetries) {
                     const waitMs = Math.pow(2, attempt) * 1000;
@@ -671,7 +686,9 @@ async function fetchKanjiData() {
                 }
 
                 if (!response.ok) {
-                    throw new Error(`${provider.name} API failed (${response.status}): ${responseText.substring(0, 200)}`);
+                    const error = new Error(`${provider.name} API failed (${response.status}): ${responseText.substring(0, 200)}`);
+                    error.status = response.status;
+                    throw error;
                 }
 
                 const data = JSON.parse(responseText);
@@ -759,7 +776,9 @@ async function fetchKanjiData() {
         // All AI providers failed — kanjiData already contains local data with compounds
         // and Myanmar meanings from buildKanjiDataFromCSV (set before the API call).
         console.error('All AI providers failed. Last error:', lastError?.message);
-        loadingMessage.textContent = `All AI providers unavailable. Showing kanji with compounds and meanings from local data.`;
+        loadingMessage.textContent = lastError?.status === 503
+            ? 'AI provider error 503 Service Unavailable. Showing kanji with compounds and meanings from local data.'
+            : 'All AI providers unavailable. Showing kanji with compounds and meanings from local data.';
         loadingMessage.style.color = '#e67e22';
         renderGrid();
         renderLearnedKanji();
