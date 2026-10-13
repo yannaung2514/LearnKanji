@@ -16,16 +16,16 @@ const apiConfig = window.apiConfig || {
 
     providers: [
         {
-            name: 'gemini',
-            apiKey: '', // Not needed when useProxy is true (key is on the server)
-            model: 'gemini-3.5-flash',
-            apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
-        },
-        {
             name: 'groq',
             apiKey: '', // Not needed when useProxy is true (key is on the server)
             model: 'openai/gpt-oss-120b',
             apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+        },
+        {
+            name: 'gemini',
+            apiKey: '', // Not needed when useProxy is true (key is on the server)
+            model: 'gemini-3.5-flash',
+            apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
         },
     ],
 };

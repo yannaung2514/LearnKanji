@@ -6,12 +6,24 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { prompt, provider = 'gemini' } = req.body || {};
+    const { prompt, provider = 'groq' } = req.body || {};
     if (!prompt) {
         return res.status(400).json({ error: 'Missing prompt' });
     }
 
     const providers = {
+        groq: {
+            apiKey: process.env.GROQ_API_KEY,
+            apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+            buildBody: () => ({
+                model: 'openai/gpt-oss-120b',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.2,
+                max_tokens: 4096,
+                response_format: { type: 'json_object' },
+            }),
+            buildUrl: () => providers.groq.apiUrl,
+        },
         gemini: {
             apiKey: process.env.GEMINI_API_KEY,
             apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
@@ -25,18 +37,6 @@ module.exports = async function handler(req, res) {
                 },
             }),
             buildUrl: apiKey => `${providers.gemini.apiUrl}?key=${apiKey}`,
-        },
-        groq: {
-            apiKey: process.env.GROQ_API_KEY,
-            apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
-            buildBody: () => ({
-                model: 'openai/gpt-oss-120b',
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.2,
-                max_tokens: 4096,
-                response_format: { type: 'json_object' },
-            }),
-            buildUrl: () => providers.groq.apiUrl,
         },
     };
     const selectedProvider = providers[provider];

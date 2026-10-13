@@ -15,16 +15,16 @@ window.apiConfig = {
 
     providers: [
         {
-            name: 'gemini',
-            apiKey: '', // ← Only needed when useProxy is false (local direct API)
-            model: 'gemini-3.5-flash',
-            apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
-        },
-        {
             name: 'groq',
             apiKey: '', // ← Set your Groq API key when useProxy is false
             model: 'openai/gpt-oss-120b',
             apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+        },
+        {
+            name: 'gemini',
+            apiKey: '', // ← Only needed when useProxy is false (local direct API)
+            model: 'gemini-3.5-flash',
+            apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
         },
     ],
 };
