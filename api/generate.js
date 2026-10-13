@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
             apiKey: process.env.GROQ_API_KEY,
             apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
             buildBody: () => ({
-                model: 'llama-3.3-70b-versatile',
+                model: 'openai/gpt-oss-120b',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.2,
                 max_tokens: 4096,

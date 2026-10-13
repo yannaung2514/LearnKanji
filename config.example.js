@@ -23,7 +23,7 @@ window.apiConfig = {
         {
             name: 'groq',
             apiKey: '', // ← Set your Groq API key when useProxy is false
-            model: 'llama-3.3-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
         },
     ],

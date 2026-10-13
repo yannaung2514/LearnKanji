@@ -24,7 +24,7 @@ const apiConfig = window.apiConfig || {
         {
             name: 'groq',
             apiKey: '', // Not needed when useProxy is true (key is on the server)
-            model: 'llama-3.3-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
         },
     ],
