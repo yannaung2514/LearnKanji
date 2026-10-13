@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
                 model: 'openai/gpt-oss-120b',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.2,
-                max_tokens: 4096,
+                max_tokens: 16384,
                 response_format: { type: 'json_object' },
             }),
             buildUrl: () => providers.groq.apiUrl,
